@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Create Catan Game</title>
+    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css" integrity="sha384-nn4HPE8lTHyVtfCBi5yW9d20FjT8BJwUXyWZT9InLYax14RDjBj46LmSztkmNP9w" crossorigin="anonymous">
+    <style>
+        body {
+            align-items: center;
+            display: flex;
+            flex-direction: column;
+        }
+    </style>
+</head>
+<body>
+    <form method="POST" action="/game" class="pure-form pure-form-stacked">
+        <fieldset>
+            <legend>Create Catan game</legend>
+
+            <label for="gameName">Game name</label>
+            <input required type="text" name="gameName" value="My Catan Game" />
+
+            <label for="minTurnLength">Min turn length (in seconds)</label>
+            <input placeholder="in seconds" required type="number" min="30" name="minTurnLength" value="90" />
+
+            <label for="maxTurnLength">Max turn length (in seconds)</label>
+            <input placeholder="in seconds" required type="number" min="30" max="300" name="maxTurnLength" value="120" />
+
+            <button type="submit" class="pure-button pure-button-primary">Create game</button>
+        </fieldset>
+    </form>
+</body>
+</html>

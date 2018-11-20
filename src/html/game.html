@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Catan Console</title>
+
+    <link href="https://fonts.googleapis.com/css?family=Arvo" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css" integrity="sha384-nn4HPE8lTHyVtfCBi5yW9d20FjT8BJwUXyWZT9InLYax14RDjBj46LmSztkmNP9w" crossorigin="anonymous">
+    <style>
+        body {
+            background: black;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: 'Arvo', serif;
+        }
+        input {
+            color: black;
+        }
+        #admin-controls {
+            display: none;
+            margin: 1em 0;
+        }
+        #progress { width: 200px; height: 200px; }
+        .progressbar-text {
+            color: #FFF !important;
+            text-align: center;
+        }
+        #copyright {
+            color: rgb(99, 99, 99);
+            margin: 1em;
+        }
+        .turn-counter {
+            color: #8a8a8a !important;
+        }
+        .button-small {
+            font-size: 80%;
+        }
+        .button-large {
+            font-size: 125%;
+        }
+        .pure-button {
+            margin: 0.5em 0;
+        }
+
+        #game-settings {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <h1 id="game-name">Catan game</h1>
+    <div id="progress"></div>
+
+    <div id="admin-controls">
+        <button id="turn-increment" class="button-large pure-button pure-button-primary">🎲 Next turn</button>
+        <br>
+        <button id="adjust-settings" class="pure-button button-small">⚙️ Adjust game settings</button>
+
+        <form method="POST" action="/game/settings" id="game-settings" class="pure-form pure-form-stacked">
+            <fieldset>
+                <label for="gameName">Game name</label>
+                <input required type="text" name="gameName" placeholder="My Catan Game" />
+
+                <label for="minTurnLength">Min turn length (in seconds)</label>
+                <input required placeholder="in seconds" type="number" min="30" name="minTurnLength" />
+
+                <label for="maxTurnLength">Max turn length (in seconds)</label>
+                <input required placeholder="in seconds" type="number" min="30" max="300" name="maxTurnLength" />
+
+                <button type="submit" class="pure-button pure-button-primary">Update game</button>
+            </fieldset>
+        </form>
+    </div>
+
+    <small id="copyright">Catan Console 🐑 🧱 🌾 ⛰ 🌳 v0.0.1</small>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.slim.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.slim.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/progressbar.js/1.0.1/progressbar.min.js"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('dungeon-master')) {
+            $('#admin-controls').show();
+        }
+
+        function formatTime(lengthInSeconds) {
+            const minutes = Math.floor(lengthInSeconds / 60).toString();
+            const seconds = (lengthInSeconds % 60).toString();
+
+            return `${ minutes.padStart(2, '0') }:${ seconds.padStart(2, '0') }`;
+        }
+
+        function updateTurnDisplay(turn) {
+            progress.animate(turn.timeLeft / turn.length);
+            progress.setText(`${ formatTime(turn.timeLeft) }<br /><span class="turn-counter">Turn #${ turn.count }</span>`);
+        }
+
+        function updateGameStatus(gameStatus) {
+            if (gameStatus.turn.count > 0) {
+                updateTurnDisplay(gameStatus.turn);
+            } else {
+                progress.setText('Game not started yet');
+            }
+
+            $('#game-name').text(gameStatus.gameParams.name);
+            $('input[name=gameName]').val(gameStatus.gameParams.name);
+            $('input[name=minTurnLength]').val(gameStatus.gameParams.minTurnLength || 90);
+            $('input[name=maxTurnLength]').val(gameStatus.gameParams.maxTurnLength || 120);
+        }
+
+        const red = 'rgba(194, 45, 45, 0.85)';
+        const orange = 'rgba(232, 148, 46, 0.85);';
+        const green = 'rgba(13, 200, 99, 0.85)';
+        const progress = new ProgressBar.Circle('#progress', {
+            color: green,
+            duration: 800,
+            easing: 'linear',
+            trailColor: 'rgb(99, 99, 99)',
+            strokeWidth: 5,
+            trailWidth: 1
+        });
+
+        (async function() {
+            const socket = io();
+            const gameStatus = await fetch('/game/status').then(response => response.json());
+
+            updateGameStatus(gameStatus);
+
+            socket.on('turn.start', updateTurnDisplay);
+            socket.on('turn.tick', updateTurnDisplay);
+            socket.on('game.status', updateGameStatus);
+            socket.on('turn.complete', () => {
+                var audio = new Audio('http://www.instantrapairhorn.com/wp-content/uploads/2014/03/instantrapairhorn.mp3');
+                audio.play();
+            });
+
+            $('#turn-increment').on('click', () => {
+                fetch('/game/turn', { method: 'POST' });
+            });
+
+            $('#adjust-settings').on('click', () => $('#game-settings').toggle());
+
+            $('#game-settings').on('submit', e => {
+                e.preventDefault();
+                const values = $(e.currentTarget).serialize();
+                fetch($(e.currentTarget).attr('action'), {
+                    body: new URLSearchParams(values),
+                    method: 'POST'
+                });
+            });
+        })();
+    </script>
+</body>
+</html>
