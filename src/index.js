@@ -12,11 +12,11 @@ let turnTimer = null;
 
 app.use(express.urlencoded({ extended: true }));
 
-app.get('/game/actions/create', (req, res) => {
+app.get('/game/actions/create', (_, res) => {
      res.sendFile(path.join(__dirname + '/html/game-create.html'))
 });
 
-app.get('/game/status', (req, res) => res.send({
+app.get('/game/status', (_, res) => res.send({
     gameParams,
     turn
 }));
@@ -32,9 +32,9 @@ app.post('/game/settings', (req, res) => {
     updateGameSettings(req.body);
 });
 
-app.get('/game', (req, res) => res.sendFile(path.join(__dirname + '/html/game.html')));
+app.get('/game', (_, res) => res.sendFile(path.join(__dirname + '/html/game.html')));
 
-app.post('/game/turn', (req, res) => {
+app.post('/game/turn', (_, res) => {
     res.send('👍 Turn started');
 
     if (turnTimer) {
@@ -61,7 +61,7 @@ app.post('/game/turn', (req, res) => {
 
 http.listen(port, '0.0.0.0');
 
-io.on('connection', socket => {
+io.on('connection', _ => {
     console.log('a user connected');
 });
 
