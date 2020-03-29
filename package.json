@@ -1,12 +1,12 @@
 {
   "name": "catan-console",
   "version": "1.0.0",
-  "description": "",
+  "description": "socket.io shared timer",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "Mark LeMerise",
   "license": "ISC",
   "dependencies": {
     "dayjs": "^1.7.7",
