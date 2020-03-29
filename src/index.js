@@ -35,7 +35,7 @@ app.post('/game/settings', (req, res) => {
 app.get('/game', (_, res) => res.sendFile(path.join(__dirname + '/html/game.html')));
 
 app.post('/game/turn', (_, res) => {
-    res.send('👍 Turn started');
+    res.send('👍 Turn started.');
 
     if (turnTimer) {
         completeTurn(turn);
