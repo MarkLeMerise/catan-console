@@ -22,13 +22,13 @@ app.get('/game/status', (_, res) => res.send({
 }));
 
 app.post('/game', (req, res) => {
-    res.send('🎲 Game created');
+    res.send('🎲 Game created!');
     updateGameSettings(req.body);
     res.redirect('/game?dungeon-master');
 });
 
 app.post('/game/settings', (req, res) => {
-    res.send('⚙️ Settings updated');
+    res.send('⚙️ Settings updated.');
     updateGameSettings(req.body);
 });
 
