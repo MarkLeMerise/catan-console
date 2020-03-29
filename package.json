@@ -9,7 +9,6 @@
   "author": "Mark LeMerise",
   "license": "ISC",
   "dependencies": {
-    "dayjs": "^1.7.7",
     "express": "^4.16.4",
     "socket.io": "^2.1.1"
   }
